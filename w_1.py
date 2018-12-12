@@ -61,43 +61,34 @@ def LCSBackTrack(v,w):
 	backtrack = []
 	p = len(v)
 	q = len(w)
-	match = 0
+	s = [[0 for x in xrange(q+1)] for x in xrange(p+1)] 
 	for i in range(0, p + 1):
-		l = []
 		for j in range(0, q + 1):
-			l.append(0)
-		s.append(l)
-	for i in range(0, p + 1):
-		l = []
-		for j in range(0, q + 1):
-			l.append('*')
-		backtrack.append(l)
-	#print s
-	#print backtrack
-	for i in range(1, p + 1):
-		for j in range(1, q + 1):
-			if v[i - 1] == w[i - 1]:
-				match = 1
-			else:
-				match = 0
-			s[i][j] = max(s[i-1][j], s[i][j-1],(s[i-1][j-1] + match))
-			if s[i][j] == s[i - 1][j]:
-				backtrack[i][j] = '↓'
-			elif s[i][j] == s[i][j - 1]:
-				backtrack[i][j] = '→'
-			elif (s[i][j] == (s[i - 1][j - 1] + match)) and (v[i - 1] == w[j - 1]):
-				backtrack[i][j] = '↘'
-	#print(s)
-	return backtrack
+			if i == 0 or j == 0: 
+				s[i][j] = 0
+			elif v[i-1] == w[j-1]: 
+				s[i][j] = s[i-1][j-1] + 1
+			else: 
+				s[i][j] = max(s[i-1][j], s[i][j-1])
 
+	LCS = []
+	i = len(v)
+	j = len(w)
+	while i > 0 and j > 0:
+		if v[i-1] == w[j-1]: 
+			LCS.append(v[i-1]) 
+			i-=1
+			j-=1
+		elif s[i-1][j] > s[i][j-1]: 
+			i-=1
+		else: 
+			j-=1
+	LCS = ''.join(LCS[::-1])
+	return LCS
 
-	
-
-
-
-#money = 19212
-#coins = [19,13,5,3,1]
-#print DPchange(money, coins)
+#money = 21
+#coins = [2,3]
+#print(DPchange(money, coins))
 
 #n = 4
 #m = 4
@@ -115,3 +106,16 @@ def LCSBackTrack(v,w):
 #	for element in l:
 #		print(element, end = ' ')
 #	print('\n')
+
+
+#v = 'AACCTTGG'
+#w = 'ACACTGTGA'
+#backtrack = LCSBackTrack(v,w)
+#i = len(v)
+#j = len(w)
+#print(OutputLCS(backtrack, v, i, j))
+
+X='AACCTTGG'
+Y='ACACTGTGA'
+print(LCSBackTrack(X, Y))
+  
