@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
+
+
 def DPchange(money, coins):
 	MinNumCoins = {}
 	for m in range(0, money + 1):
@@ -52,6 +56,42 @@ def ManhattanTouristInput(file):
 
 	return (n, m, down, right)
 
+def LCSBackTrack(v,w):
+	s = []
+	backtrack = []
+	p = len(v)
+	q = len(w)
+	match = 0
+	for i in range(0, p + 1):
+		l = []
+		for j in range(0, q + 1):
+			l.append(0)
+		s.append(l)
+	for i in range(0, p + 1):
+		l = []
+		for j in range(0, q + 1):
+			l.append('*')
+		backtrack.append(l)
+	#print s
+	#print backtrack
+	for i in range(1, p + 1):
+		for j in range(1, q + 1):
+			if v[i - 1] == w[i - 1]:
+				match = 1
+			else:
+				match = 0
+			s[i][j] = max(s[i-1][j], s[i][j-1],(s[i-1][j-1] + match))
+			if s[i][j] == s[i - 1][j]:
+				backtrack[i][j] = '↓'
+			elif s[i][j] == s[i][j - 1]:
+				backtrack[i][j] = '→'
+			elif (s[i][j] == (s[i - 1][j - 1] + match)) and (v[i - 1] == w[j - 1]):
+				backtrack[i][j] = '↘'
+	#print(s)
+	return backtrack
+
+
+	
 
 
 
@@ -64,6 +104,14 @@ def ManhattanTouristInput(file):
 #down = [[1, 0, 2, 4, 3], [4, 6, 5, 2, 1], [4, 4, 5, 2, 1] ,[5, 6, 8, 5, 3]]
 #right = [[3, 2, 4, 0], [3, 2, 4, 2], [0, 7, 3, 3] ,[3, 3, 0, 2], [1, 3, 2, 2]]
 
-file = '../Downloads/dataset_261_10.txt'
-n, m, down, right =  ManhattanTouristInput(file)
-print ManhattanTourist(n, m, down, right)
+#file = '../Downloads/dataset_261_10.txt'
+#n, m, down, right =  ManhattanTouristInput(file)
+#print ManhattanTourist(n, m, down, right)
+
+#v = 'AACC'
+#w = 'ACAC'
+#backtrack = LCSBackTrack(v,w)
+#for l in backtrack:
+#	for element in l:
+#		print(element, end = ' ')
+#	print('\n')
