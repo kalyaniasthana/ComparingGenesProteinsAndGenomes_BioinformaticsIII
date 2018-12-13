@@ -86,6 +86,59 @@ def LCSBackTrack(v,w):
 	LCS = ''.join(LCS[::-1])
 	return LCS
 
+def TopologicalSorting(d_with_weights, start, end):
+	d_without_weights = {}
+	for key in d_with_weights:
+		if key not in d_without_weights:
+			d_without_weights[key] = []
+
+	for key in d_with_weights:
+		for item in d_with_weights[key]:
+			l = item.split(':')
+			d_without_weights[key].append(l[0])
+
+	stack = []
+	#calculating indegrees
+	indegree_dict = {}
+	for key in d_without_weights:
+		if key not in indegree_dict:
+			indegree_dict[key] = 0
+		l = d_without_weights[key]
+		for node in l:
+			if node not in indegree_dict:
+				indegree_dict[node] = 0
+
+	for key in indegree_dict:
+		count_in_key = 0
+		for key_ in d_without_weights:
+			l = d_without_weights[key_]
+			if key in l:
+				count_in_key += 1
+		indegree_dict[key] = count_in_key
+
+
+	if start not in stack:
+		stack.append(start)
+
+	for key in indegree_dict:
+		if indegree_dict[key] == 0 and key not in stack:
+			stack.append(key)
+
+	topological_order = []
+
+	while len(stack) > 0:
+		u = stack.pop()
+		topological_order.append(u)
+		#print(topological_order)
+		if u in d_without_weights:
+			for node in d_without_weights[u]:
+				indegree_dict[node] -= 1
+				if indegree_dict[node] == 0:
+					stack.append(node)
+
+	return topological_order
+
+
 #money = 21
 #coins = [2,3]
 #print(DPchange(money, coins))
@@ -115,7 +168,13 @@ def LCSBackTrack(v,w):
 #j = len(w)
 #print(OutputLCS(backtrack, v, i, j))
 
-X='AACCTTGG'
-Y='ACACTGTGA'
-print(LCSBackTrack(X, Y))
+#X='AACCTTGG'
+#Y='ACACTGTGA'
+#print(LCSBackTrack(X, Y))
+
+start = 'a'
+end = 'f'
+d = {'a': ['b:7', 'c:4'], 'b': ['e:2'], 'c': ['d:1', 'e:4'], 'd': ['f:3'], 'e': ['f:2']}
+print(TopologicalSorting(d, start, end))
+
   
