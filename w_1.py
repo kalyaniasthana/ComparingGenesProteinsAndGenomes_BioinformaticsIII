@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+import copy
 
 
 def DPchange(money, coins):
@@ -86,16 +87,26 @@ def LCSBackTrack(v,w):
 	LCS = ''.join(LCS[::-1])
 	return LCS
 
-def TopologicalSorting(d_with_weights, start, end):
+def TopologicalSorting(d_with_weights, start):
 	d_without_weights = {}
 	for key in d_with_weights:
 		if key not in d_without_weights:
-			d_without_weights[key] = []
+			d_without_weights[int(key)] = []
 
 	for key in d_with_weights:
 		for item in d_with_weights[key]:
 			l = item.split(':')
-			d_without_weights[key].append(l[0])
+			d_without_weights[int(key)].append(int(l[0]))
+
+	distance_dict = {}
+	for key in d_with_weights:
+		if key not in distance_dict:
+			distance_dict[int(key)] = []
+	for key in d_with_weights:
+		for item in d_with_weights[key]:
+			l = item.split(':')
+			distance_dict[int(key)].append(int(l[1]))	
+
 
 	stack = []
 	#calculating indegrees
@@ -117,12 +128,14 @@ def TopologicalSorting(d_with_weights, start, end):
 		indegree_dict[key] = count_in_key
 
 
-	if start not in stack:
-		stack.append(start)
-
 	for key in indegree_dict:
-		if indegree_dict[key] == 0 and key not in stack:
+		if indegree_dict[key] == 0 and key not in stack and key!=start:
 			stack.append(key)
+
+	if start not in stack:
+		stack.append(int(start))
+
+	#print(stack)
 
 	topological_order = []
 
@@ -136,7 +149,90 @@ def TopologicalSorting(d_with_weights, start, end):
 				if indegree_dict[node] == 0:
 					stack.append(node)
 
-	return topological_order
+
+	return topological_order,d_without_weights, distance_dict
+
+def ReverseGraph(d_without_weights, distance_dict):
+	#keys are nodes and values are incoming edges
+	d_rev = {}
+	d_rev_weights = {}
+	d = d_without_weights
+	d_ = distance_dict
+	for node in d:
+		if node not in d_rev:
+			d_rev[node] = []
+		for edge in d[node]:
+			if edge not in d_rev:
+				d_rev[edge] = []
+
+	for node in d_rev:
+		for node_ in d:
+			if node in d[node_]:
+				d_rev[node].append(node_)
+
+	for node in d_rev:
+		if node not in d_rev_weights:
+			d_rev_weights[node] = []
+
+	for node in d_rev:
+		for node_ in d:
+			if node in d[node_]:
+				node_index = d[node_].index(node)
+				d_rev_weights[node].append(distance_dict[node_][node_index])
+
+
+	return d_rev, d_rev_weights
+
+
+def LongestPathDAG(d_rev, d_rev_weights, d_without_weights, distance_dict, topological_order, start, end):
+	source = int(start)
+	sink = int(end)
+	if source not in topological_order or sink not in topological_order:
+		return None
+
+	#a = len(topological_order) - topological_order[::-1].index(source) - 1
+	a = topological_order.index(source)
+	b = topological_order.index(sink)
+
+	if a>=b:
+		return None
+	order = topological_order[a:b+1]
+	#print(order)
+
+	s = {source: 0}
+	backtrack = {source: None}
+
+	#longest path value
+	for node in order:
+		lmax = float('-Inf')
+		if len(d_rev[node]) == 0:
+			s[node] = 0
+			#print(node, '**')
+		else:
+			for incoming_edge in d_rev[node]:
+				if incoming_edge in backtrack:
+					v = d_rev[node].index(incoming_edge)
+					#print(incoming_edge,'ie')
+					#print(s[v],'!!!!')
+					#print(d_rev_weights[node][v],'####')
+					l = s[incoming_edge] + d_rev_weights[node][v]
+					if l > lmax:
+						lmax = l
+						s[node] = l
+						backtrack[node] = incoming_edge
+
+	longest_path_weight = s[sink]
+	path = []
+	node = sink
+	while (not node is None):
+		path.append(str(node))
+		node = backtrack[node]
+	path.reverse()
+	m = '->'.join(path)
+	print(backtrack)
+	print(order)
+
+	return longest_path_weight, m
 
 
 #money = 21
@@ -172,9 +268,28 @@ def TopologicalSorting(d_with_weights, start, end):
 #Y='ACACTGTGA'
 #print(LCSBackTrack(X, Y))
 
-start = 'a'
-end = 'f'
-d = {'a': ['b:7', 'c:4'], 'b': ['e:2'], 'c': ['d:1', 'e:4'], 'd': ['f:3'], 'e': ['f:2']}
-print(TopologicalSorting(d, start, end))
+start = '0'
+end = '19'
+d = {}
+file = '../Downloads/dataset_245_7.txt'
+with open(file) as f:
+	for line in f:
+		if line[len(line) - 1] == '\n':
+			line = line[:-1]
+		l = line.split('->')
+		if l[0] not in d:
+			d[l[0]] = []
+		d[l[0]].append(l[1])
 
-  
+#d = {'0': ['1:7', '2:4'], '2': ['3:2'], '1': ['4:1'], '3': ['4:3']}
+topological_order, d_without_weights, distance_dict = TopologicalSorting(d, start)
+#print(topological_order)
+#print(d_without_weights)
+#print('********')
+#print(distance_dict)
+#print('********')
+d_rev, d_rev_weights = ReverseGraph(d_without_weights, distance_dict)
+#print(d_rev)
+#print('***')
+#print(d_rev_weights)
+print(LongestPathDAG(d_rev, d_rev_weights, d_without_weights, distance_dict, topological_order, start, end))
