@@ -268,28 +268,28 @@ def LongestPathDAG(d_rev, d_rev_weights, d_without_weights, distance_dict, topol
 #Y='ACACTGTGA'
 #print(LCSBackTrack(X, Y))
 
-start = '0'
-end = '19'
-d = {}
-file = '../Downloads/dataset_245_7.txt'
-with open(file) as f:
-	for line in f:
-		if line[len(line) - 1] == '\n':
-			line = line[:-1]
-		l = line.split('->')
-		if l[0] not in d:
-			d[l[0]] = []
-		d[l[0]].append(l[1])
+#start = 'a'
+#end = '19'
+#d = {}
+#file = '../Downloads/dataset_245_7.txt'
+#with open(file) as f:
+#	for line in f:
+#		if line[len(line) - 1] == '\n':
+#			line = line[:-1]
+#		l = line.split('->')
+#		if l[0] not in d:
+#			d[l[0]] = []
+#		d[l[0]].append(l[1])
 
-#d = {'0': ['1:7', '2:4'], '2': ['3:2'], '1': ['4:1'], '3': ['4:3']}
-topological_order, d_without_weights, distance_dict = TopologicalSorting(d, start)
+#d = {'a': ['b', 'c', 'd', 'e', 'f'], 'b': ['c', 'f'], 'c': ['d'], 'e': ['d', 'f']}
+#topological_order, d_without_weights, distance_dict = TopologicalSorting(d, start)
 #print(topological_order)
 #print(d_without_weights)
 #print('********')
 #print(distance_dict)
 #print('********')
-d_rev, d_rev_weights = ReverseGraph(d_without_weights, distance_dict)
+#d_rev, d_rev_weights = ReverseGraph(d_without_weights, distance_dict)
 #print(d_rev)
 #print('***')
 #print(d_rev_weights)
-print(LongestPathDAG(d_rev, d_rev_weights, d_without_weights, distance_dict, topological_order, start, end))
+#print(LongestPathDAG(d_rev, d_rev_weights, d_without_weights, distance_dict, topological_order, start, end))
