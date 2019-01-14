@@ -91,7 +91,7 @@ def AffineGapPenalties(v, w):
 		i -= 1
 	while j > 0:
 		k.append('-')
-		j.append(w[j-1])
+		l.append(w[j-1])
 		j -= 1
 
 	k = ''.join(k[::-1])
@@ -127,20 +127,20 @@ def MiddlePath(v, w):
 				if j == m1 and (j - 1) == m2:
 					res.append((i-1, m2))
 					res.append((i, m1))
-					break
+					return 'diagonal', m2
 				i -= 1
 				j -= 1
 			elif s[i][j] == s[i-1][j] + indel_penalty:
 				if j == m1:
 					res.append((i, m1))
 					res.append((i-1, m1))
-				break
+					return 'up', m1
 				i -= 1
 			elif s[i][j] == s[i][j-1] + indel_penalty:
 				if j == m1:
 					res.append((i, m1))
 					res.append((i, m2))
-				break
+					return 'side', m2
 				j -= 1
 		return res
 	else:
@@ -152,34 +152,126 @@ def MiddlePath(v, w):
 				if j == m+1:
 					res.append((i-1, j-1))
 					res.append((i, j))
-					break
+					return 'diagonal', j-1
 				i -= 1
 				j -= 1
 			elif s[i][j] == s[i-1][j] + indel_penalty:
 				if j == m:
 					res.append((i-1, j))
 					res.append((i, j))
-					break
+					return 'up', j
 				i -= 1
 			elif s[i][j] == s[i][j-1] + indel_penalty:
 				if j == m+1:
 					res.append((i, j-1))
 					res.append((i, j))
-					break
+					return 'side', j-1
 				j -= 1
-		return res 
+
+def MultipleSequenceAlignment(v, w, x):
+	score = 0
+	s = []
+	p = len(v)
+	q = len(w)
+	r = len(x)
+	for i in range(0, p+1):
+		s.append([])
+		for j in range(0, q+1):
+			s[i].append([])
+			for k in range(0, r+1):
+				s[i][j].append(0)
+
+	for i in range(1, p+1):
+	    for j in range(1, q+1):
+	    	for k in range(1, r+1):
+	    		if v[i-1] == w[j-1] == x[k-1]:
+	    			score = 1
+	    		else:
+	    			score = 0
+	    		s[i][j][k] = max(s[i-1][j][k], s[i][j-1][k], s[i][j][k-1], s[i-1][j-1][k], s[i-1][j][k-1], s[i][j-1][k-1], s[i-1][j-1][k-1] + score)
+				
+	a = []
+	b = []
+	c =[]
+	i = len(v)
+	j = len(w)
+	k = len(x)
+	#return s
+	while i > 0 and j > 0 and k > 0:
+		if v[i-1] == w[j-1] == x[k-1]:
+			score = 1
+		else:
+			score = 0
+		if s[i][j][k] == s[i-1][j-1][k-1] + score: 
+			a.append(v[i-1])
+			b.append(w[j-1])
+			c.append(x[k-1])
+			i -= 1
+			j -= 1
+			k -= 1
+		elif s[i][j][k] == s[i][j-1][k-1]:
+			a.append('-')
+			b.append(w[j-1])
+			c.append(x[k-1])
+			j -= 1
+			k -= 1
+		elif s[i][j][k] == s[i-1][j][k-1]:
+			a.append(v[i-1])
+			b.append('-')
+			c.append(x[k-1])
+			i -= 1
+			k -= 1
+		elif s[i][j][k] == s[i-1][j-1][k]:
+			a.append(v[i-1])
+			b.append(w[j-1])
+			c.append('-')
+			i -= 1
+			j -= 1
+		elif s[i][j][k] == s[i][j][k-1]:
+			a.append('-')
+			b.append('-')
+			c.append(x[k-1])
+			k -= 1
+		elif s[i][j][k] == s[i][j-1][k]:
+			a.append('-')
+			b.append(w[j-1])
+			c.append('-')
+			j -= 1
+		elif s[i][j][k] == s[i-1][j][k]:
+			a.append(v[i-1])
+			b.append('-')
+			c.append('-')
+			i -= 1
+		
+
+	while i > 0:
+		a.append(v[i-1])
+		b.append('-')
+		c.append('-')
+		i -= 1
+	while j > 0:
+		a.append('-')
+		b.append(w[j-1])
+		c.append('-')
+		j -= 1
+	while k > 0:
+		a.append('-')
+		b.append('-')
+		c.append(x[k-1])
+		k -= 1
 
 
-v = 'PAACYFVATLREEGKKHTQITTSMEKKHIGMPVTMWRVSQPYVYHFVQDELCIKTAREKHAYVCHSGKLRDLWYPLFKMSKTDEVFRLMGVWIIACGRCVTVHRLCMCTLHRTKFPLFCCTDGLTHRLRYYYYYINPAFMTQVYTHAMWWGDKLSATYLAYIMKSHFALSRGNDQNGTENIPSATCQSCRMHSAPALHNTCHNMKRRTCYMGHHQREYRGRYRDPVDSVFHVRIRRNGQKNCCGWQWYTHYKCHQWDTPPDVYVKLNVQKDTGLNIYRSNAVKTLTGPAVQYVTGVFFWPEHQVTSETDCQKCIEPAARAGFGRPTLCHTEPIGYKLGVSVPFQTSWMRSRCLWNVNLMRVKYGGHEVSDSIEPRASQMVHHFPGGSFQCPDVDFNPNHWSTTQIKFGVTGQTARWDRGSAFRYRWAYLVFGWMQDKSVNQKQDCGRYKAAKCPKCCMYSRFFVMQHRDHWTCNNPIYHPLATPDWPKPMKLWQWHYLGLVELYPPMGLHVCKNRTRPGWTMSMFLMKGHCPNHYPMVSNCDKMPTLDQKQKWMNCVWWKFGSWGNCGDICGTQYACPLCWIWMHHRKDCAFKFEAQASSPSSCRDHGHFWMLVNLDDVILHEKAKVTCTCRPFPFRPMSYSEVIPQCADMDPCETCLAKWVSLHDKFVTNCFKWYWVAYKMHLCCLRPPESEGSTTHPPVGCDSGDELKGEKEQQQWIDVSVGMDMQPIMPYFETRQVHIWSRTPFNQIIAHYHHRISSMFSTRRAGFCGIAPHYMPHTDWWLANDNMKGNMNKKEDMSFDNCDKYGWFPRDFAPKMHMPHTDQRKAEYQCIYQYMFARSHMNCDFKMMDFASNFGCNVCESIAWMSDIVKDQYRLKKAACNDSHWDNMHDASSTNCQFGYSAAIGEDYMYFIPMPFMFDSNLPDNWPAWKGADVLKAPCGCITDNIMMPIHWNSKLMFDFNEIRWIGIIKNFETSHGVHWDGNFMDVKAHDKCFPKDCHGHVAMAQYFVSCCKEDKFMIMCPQRRLGWQPQEA'
-w = 'SQGSVGLCEFQIWAIAWCFHFAMRQMQHSIVMYYDCADLITHMTNTIEECTWHVYHYPMIRNYFDSPPYQLMKEMTCHWWFTHHIDNHLSKLLEDVAWKLAGRFPSQIVVQYLVAYYERQLCGCRQLFDWDRCSMIVRFVNMHPHHFYPPYWRTCLETKTCSHITDVDHFQHDHCPNNKAPEGWHHEYGGMVDLKFKINMRSIGRCGFFYAMEWTTCLVQIFTWNLPIFTSHCIWKKLMALEMPENIGKALFADVCMYQDWKLAMVSSQIRGGGATPPIWFWIICPFRTFGQCEWGGKNSTPEDFNMIFDPVWKAIDYVAASYFCYDFVACPIKNHRSVPMIPWGAYVLAHHLKRLKDYKGCFNVHTHIGPVKPFKNKRDHECPCWVYKQLTIDMQSNTEAYEMTWCRPSNECNCVLYMNSDVRCAIRCGHQTGVVCIDWKALGQQVDEIAKCPWCCMYSRHFVYQPLATPDWPFPMKLWQWHYLGLVELYPDGLHVCKNRTRPGWTMSMFLMKGHCPNAYPCVSNCDKMMTLDYKWWKFGSTGNCGDICGTQYACPLCWMWMQYEHAAICLSESLNMYSVINQFMKWWFNMYCYWNEPAKEPNLLHGGVWNGFACDWHNCMWRNVLFPNWEEFPTDKMQFVDSFATQGLYVNTNAKFCHTRPYNLDMQHIIGIVANVHHFRSSLAKEKYTTQIQMHLICAEDVIWSHCYHFHLTYVRNLQLSFAMRIYDSKRVIALVCNSNGIDYWMKMSDFVESNFSGWKSFFAIEKLPRGDSMHRHVVPEIRPTHCKYPHKPMIPRYHYASIMMLYPHLTVCKLHVDAQQWMLVGNHLMMRHYAQFFNFTDGEEFNSFRVWNLHDTDDGFQEDGINDILWLRMGPMFWYLPIDKYMKYTEYTKIKHWTWYAQCESMMFDHHNESHLWPFEKGSRHNIKKRYENMLAAKEKMMRMNVWEMNTKRWHQEQRHAGAYDIYQSYRHFIEPSHEDKEHRDCPYRQASEGLHIFTSFGDFLFFVLAEK'
-'''
-score, k, l = AffineGapPenalties(v, w)
+	a = ''.join(a[::-1])
+	b = ''.join(b[::-1])
+	c = ''.join(c[::-1])
+
+	return s[p][q][r], a, b, c
+
+v = 'GGATATGG'
+w = 'GGCACCTCCA'
+x = 'GTGCAATTTT'
+score, a, b, c = MultipleSequenceAlignment(v, w, x)
 print(score)
-print(k)
-print(l)
-'''
-res = MiddlePath(v, w)
-res = [str(i) for i in res]
-res = ' '.join(res)
-print(res)
-
+print(a)
+print(b)
+print(c)
