@@ -13,9 +13,22 @@ def ChromosomeToCycle(l):
 			nodes.append(-2*start - 1)
 	return nodes
 
+def CycleToChromosome(nodes):
+	l = []
+	i = 0
+	while i < len(nodes):
+		if nodes[i] < nodes[i+1]:
+			l.append(nodes[i+1]//2)
+		else:
+			l.append(-nodes[i+1]//2)
+		i += 2
+	return l
 
 
-x = '-1 +2 +3 -4 +5 -6 -7 +8 +9 +10 -11 -12 +13 -14 +15 +16 +17 +18 -19 -20 -21 -22 +23 -24 -25 +26 +27 +28 -29 -30 +31 -32 +33 +34 -35 -36 +37 +38 +39 -40 -41 -42 -43 -44 -45 -46 +47 -48 -49 +50 +51 -52 -53 -54 +55 -56 +57 -58 +59 +60 -61 -62 +63 -64 -65'
+
+
+'''
+x = '+1 -2 -3 +4'
 x = x.split(' ')
 l = []
 for num in x:
@@ -30,3 +43,8 @@ nodes = ChromosomeToCycle(l)
 nodes = [str(i) for i in nodes]
 nodes = '(' + ' '.join(nodes) + ')'
 print(nodes)
+'''
+x = '2 1 3 4 6 5 8 7 9 10 12 11 13 14 15 16 18 17 19 20 22 21 23 24 25 26 28 27 29 30 31 32 34 33 36 35 38 37 39 40 42 41 44 43 46 45 47 48 49 50 52 51 53 54 56 55 57 58 60 59 61 62 64 63 66 65 68 67 69 70 72 71 73 74 75 76 77 78 80 79 81 82 84 83 86 85 88 87 89 90 92 91 93 94 96 95 97 98 99 100 101 102 104 103 105 106 108 107 110 109 112 111 114 113 115 116 118 117 119 120 122 121'
+x = x.split(' ')
+nodes = [int(i) for i in x]
+print(Format(CycleToChromosome(nodes)))
